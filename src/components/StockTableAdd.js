@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { db } from "../firebase";
 
-export default function StockTableAdd() {
+export default function StockTableAdd({ lastNumber }) {
   const [inputs, setInputs] = useState({
-    albumNumber: "",
+    albumNumber: lastNumber,
     coverUrl: "",
     albumName: "",
     priceArrow: "no",
@@ -25,23 +25,26 @@ export default function StockTableAdd() {
 
   const onReset = e => {
     e.preventDefault();
-    db.collection("products").doc().set({
-      albumNumber,
-      coverUrl,
-      albumName,
-      priceArrow,
-      albumPrice,
-      quantity,
-    });
+    db.collection("products")
+      .doc()
+      .set({
+        albumNumber: Number(albumNumber),
+        coverUrl,
+        albumName,
+        priceArrow,
+        albumPrice,
+        quantity,
+      });
     setInputs({
-      albumNumber: "",
+      albumNumber: lastNumber + 1,
       coverUrl: "",
       albumName: "",
-      priceArrow: "up",
+      priceArrow: "no",
       albumPrice: "",
       quantity: "",
     });
   };
+
   return (
     <form className="grid grid-cols-10 gap-2 pb-2 pt-2 align-middle">
       <input

@@ -65,14 +65,16 @@ export default function StockTableRow({
     ) {
       return db.collection("products").doc(id).delete();
     }
-    db.collection("products").doc(id).update({
-      albumNumber: albumNumberFix,
-      coverUrl: coverUrlFix,
-      albumName: albumNameFix,
-      priceArrow: priceArrowFix,
-      albumPrice: albumPriceFix,
-      quantity: quantityFix,
-    });
+    db.collection("products")
+      .doc(id)
+      .update({
+        albumNumber: Number(albumNumberFix),
+        coverUrl: coverUrlFix,
+        albumName: albumNameFix,
+        priceArrow: priceArrowFix,
+        albumPrice: albumPriceFix,
+        quantity: quantityFix,
+      });
     setfixeds({
       albumNumberFix,
       coverUrlFix,
@@ -91,6 +93,10 @@ export default function StockTableRow({
         user ? 10 : 9
       } gap-2 pb-2 h-20 text-center items-center justify-center w-full`}
     >
+      {/* <div
+      id={id}
+      className="grid grid-cols-9 gap-2 pb-2 h-20 text-center items-center justify-center w-full"
+    > */}
       {fix ? (
         <>
           <input

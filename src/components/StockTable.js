@@ -4,19 +4,26 @@ import StockTableAdd from "./StockTableAdd";
 import StockTableRow from "./StockTableRow";
 import VpnKeyIcon from "@material-ui/icons/VpnKey";
 import { useAuthState } from "react-firebase-hooks/auth";
+import StockTableAdmin from "../components/StockTableAdmin";
+import StockTablePrice from "../components/StockTablePrice";
 
-export default function StockTable({ price }) {
+export default function StockTable({ price, pathes, emails }) {
   const [user] = useAuthState(auth);
   const [products, setProducts] = useState([]);
+
+  const [lastNumber, setLastNumber] = useState("");
+  const userAuth = emails.find(e => e.id === user?.email);
+  const [prices, setPrices] = useState();
+
   // 유저 로그인
-  const conf = u => {
-    if (
-      u?.uid === "lhsGGap9onfjhZCsKlNvjGVB8nE2" ||
-      u?.uid === "9OQdCFxY1iXr1mO9BGZXjvtwtdk2"
-    ) {
+  const conf = () => {
+    if (userAuth?.data?.auth) {
       return true;
+    } else {
+      return false;
     }
   };
+
   // const user = true;
   // 관리자일경우 걸럼갯수 하나 증가 열이름 버튼
   const signIn = e => {
@@ -29,14 +36,22 @@ export default function StockTable({ price }) {
   };
 
   useEffect(() => {
-    db.collection("products").onSnapshot(snapshot => {
-      setProducts(
-        snapshot.docs.map(doc => ({
-          id: doc.id,
-          data: doc.data(),
-        }))
-      );
-    });
+    db.collection("products")
+      .orderBy("albumNumber", "desc")
+      .onSnapshot(snapshot => {
+        setProducts(
+          snapshot.docs.map(doc => ({
+            id: doc.id,
+            data: doc.data(),
+          }))
+        );
+      });
+    db.collection("products").onSnapshot(snapshot =>
+      setLastNumber(snapshot.docs.map(doc => ({ data: doc.data() })).length + 1)
+    );
+    db.collection("addprice").onSnapshot(snapshot =>
+      setPrices(snapshot.docs.map(doc => ({ id: doc.id, data: doc.data() })))
+    );
   }, []);
 
   return (
@@ -50,10 +65,13 @@ export default function StockTable({ price }) {
         }}
         onClick={user ? logout : signIn}
       />
-
+      {userAuth && userAuth.data.own && <StockTableAdmin />}
+      {userAuth && userAuth.data.own && prices && (
+        <StockTablePrice pathes={pathes} prices={prices} />
+      )}
       <div
         className={`grid grid-cols-${
-          conf(user) ? "10" : "9"
+          conf() ? "10" : "9"
         } gap-2 grid-flow-col bg-blue-500 text-center h-8 items-center justify-center text-gray-100 rounded-sm text-lg`}
       >
         <div>번호</div>
@@ -63,9 +81,9 @@ export default function StockTable({ price }) {
 
         <div>가격</div>
         <div>수량</div>
-        {conf(user) ? <div>버튼</div> : ""}
+        {conf() ? <div>버튼</div> : ""}
       </div>
-      {conf(user) ? <StockTableAdd /> : ""}
+      {conf() && lastNumber ? <StockTableAdd lastNumber={lastNumber} /> : ""}
       {products?.map(product => (
         <StockTableRow
           key={product.id}
@@ -77,7 +95,7 @@ export default function StockTable({ price }) {
           albumPrice={product.data.albumPrice}
           quantity={product.data.quantity}
           price={price}
-          user={conf(user)}
+          user={conf()}
         />
       ))}
     </div>

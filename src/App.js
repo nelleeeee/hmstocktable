@@ -1,10 +1,17 @@
 import React from "react";
 import { useState, useEffect } from "react";
-import { BrowserRouter as Router, Route } from "react-router-dom";
-import HeadMessage from "./components/HeadMessage";
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import StockTable from "./components/StockTable";
 
 import { db } from "./firebase";
+import Sidebar from "./components/sidebar/Sidebar";
+import Notice from "./components/notice/Notice";
+import NewAlbum from "./components/newalbum/NewAlbum";
+import PhocaGoodsTable from "./components/phocagoodstable/PhocaGoodsTable";
+import NoticeContent from "./components/notice/NoticeContent";
+import Write from "./components/write/Write";
+import NewAlbumContent from "./components/newalbum/NewAlbumContent";
+import NewAlbumAdd from "./components/newalbum/NewAlbumAdd";
 
 function App() {
   const [pathes] = useState(["first", "second", "hmstocktable"]);
@@ -30,28 +37,105 @@ function App() {
   if (prices) {
     return (
       <Router>
-        <HeadMessage />
-        {emails &&
-          pathes?.map((pathh, index) => (
-            <Route
-              key={index}
-              exact
-              path={`/${pathh}`}
-              render={props => (
-                <StockTable
-                  price={prices[index]?.data?.price}
-                  emails={emails}
-                  pathes={pathes}
-                  {...props}
-                />
-              )}
-            />
-          ))}
+        <div className="flex h-auto">
+          <Switch>
+            <>
+              {emails &&
+                pathes?.map((pathh, index) => (
+                  <React.Fragment key={index}>
+                    <Route
+                      exact
+                      path={`/${pathh}/stock`}
+                      render={props => (
+                        <StockTable
+                          price={prices[index]?.data?.price}
+                          emails={emails}
+                          pathes={pathes}
+                          Sidebar={Sidebar}
+                          pathh={pathh}
+                          {...props}
+                        />
+                      )}
+                    />
+                    <Route
+                      exact
+                      path={`/${pathh}/newalbum/:id`}
+                      render={props => (
+                        <NewAlbumContent
+                          Sidebar={Sidebar}
+                          pathh={pathh}
+                          {...props}
+                        />
+                      )}
+                    />
+                    <Route
+                      exact
+                      path={`/${pathh}/newalbumadd`}
+                      render={props => (
+                        <NewAlbumAdd
+                          Sidebar={Sidebar}
+                          pathh={pathh}
+                          {...props}
+                        />
+                      )}
+                    />
+                    <Route
+                      exact
+                      path={`/${pathh}/newalbum`}
+                      render={props => (
+                        <NewAlbum Sidebar={Sidebar} pathh={pathh} {...props} />
+                      )}
+                    />
+                    <Route
+                      exact
+                      path={`/${pathh}/phocagoods`}
+                      render={props => (
+                        <PhocaGoodsTable
+                          price={prices[index]?.data?.price}
+                          emails={emails}
+                          pathes={pathes}
+                          Sidebar={Sidebar}
+                          pathh={pathh}
+                          {...props}
+                        />
+                      )}
+                    />
+
+                    <Route
+                      exact
+                      path={`/${pathh}/notice/:id`}
+                      render={props => (
+                        <NoticeContent
+                          Sidebar={Sidebar}
+                          pathh={pathh}
+                          {...props}
+                        />
+                      )}
+                    />
+                    <Route
+                      exact
+                      path={`/${pathh}/write`}
+                      render={props => (
+                        <Write Sidebar={Sidebar} pathh={pathh} {...props} />
+                      )}
+                    />
+                    <Route
+                      exact
+                      path={`/${pathh}`}
+                      render={props => (
+                        <Notice Sidebar={Sidebar} pathh={pathh} {...props} />
+                      )}
+                    />
+                  </React.Fragment>
+                ))}
+            </>
+          </Switch>
+        </div>
       </Router>
     );
   }
 
-  return <div>ddd</div>;
+  return <div>loading...</div>;
 }
 
 export default App;

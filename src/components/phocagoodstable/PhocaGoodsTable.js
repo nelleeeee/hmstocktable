@@ -1,13 +1,19 @@
 import { useEffect, useState } from "react";
-import { auth, db, provider } from "../firebase";
-import StockTableAdd from "./StockTableAdd";
-import StockTableRow from "./StockTableRow";
+import { auth, db, provider } from "../../firebase";
 import VpnKeyIcon from "@material-ui/icons/VpnKey";
 import { useAuthState } from "react-firebase-hooks/auth";
-import StockTableAdmin from "../components/StockTableAdmin";
-import StockTablePrice from "../components/StockTablePrice";
+import PhocaGoodsTableAdd from "./PhocaGoodsTableAdd";
+import PhocaGoodsTableRow from "./PhocaGoodsTableRow";
+import PhocaGoodsTableAdmin from "./PhocaGoodsTableAdmin";
+import PhocaGoodsTablePrice from "./PhocaGoodsTablePrice";
 
-export default function StockTable({ price, pathes, emails, Sidebar, pathh }) {
+export default function PhocaGoodsTable({
+  price,
+  pathes,
+  emails,
+  Sidebar,
+  pathh,
+}) {
   const [user] = useAuthState(auth);
   const [products, setProducts] = useState([]);
 
@@ -36,7 +42,7 @@ export default function StockTable({ price, pathes, emails, Sidebar, pathh }) {
   };
 
   useEffect(() => {
-    db.collection("products")
+    db.collection("phocagoods")
       .orderBy("albumNumber", "desc")
       .onSnapshot(snapshot => {
         setProducts(
@@ -46,7 +52,7 @@ export default function StockTable({ price, pathes, emails, Sidebar, pathh }) {
           }))
         );
       });
-    db.collection("products").onSnapshot(snapshot =>
+    db.collection("phocagoods").onSnapshot(snapshot =>
       setLastNumber(snapshot.docs.map(doc => ({ data: doc.data() })).length + 1)
     );
     db.collection("addprice").onSnapshot(snapshot =>
@@ -67,9 +73,9 @@ export default function StockTable({ price, pathes, emails, Sidebar, pathh }) {
           }}
           onClick={user ? logout : signIn}
         />
-        {userAuth && userAuth.data.own && <StockTableAdmin />}
+        {userAuth && userAuth.data.own && <PhocaGoodsTableAdmin />}
         {userAuth && userAuth.data.own && prices && (
-          <StockTablePrice pathes={pathes} prices={prices} />
+          <PhocaGoodsTablePrice pathes={pathes} prices={prices} />
         )}
         <div
           className={`grid grid-cols-${
@@ -85,9 +91,13 @@ export default function StockTable({ price, pathes, emails, Sidebar, pathh }) {
           <div>수량</div>
           {conf() ? <div>버튼</div> : ""}
         </div>
-        {conf() && lastNumber ? <StockTableAdd lastNumber={lastNumber} /> : ""}
+        {conf() && lastNumber ? (
+          <PhocaGoodsTableAdd lastNumber={lastNumber} />
+        ) : (
+          ""
+        )}
         {products?.map(product => (
-          <StockTableRow
+          <PhocaGoodsTableRow
             key={product.id}
             id={product.id}
             albumNumber={product.data.albumNumber}
